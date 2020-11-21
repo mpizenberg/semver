@@ -85,12 +85,18 @@ impl<'de> Deserialize<'de> for VersionReq {
     }
 }
 
+/// Comparison for versions.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-enum Op {
-    Ex,   // Exact
-    Gt,   // Greater than
+pub enum Op {
+    /// exact
+    Ex, // Exact
+    /// greater than
+    Gt, // Greater than
+    /// greater than or equal
     GtEq, // Greater than or equal to
-    Lt,   // Less than
+    /// less than
+    Lt, // Less than
+    /// less than or equal
     LtEq, // Less than or equal to
 }
 
@@ -121,13 +127,19 @@ impl From<semver_parser::Range> for Range {
     }
 }
 
+/// Predicate.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-struct Predicate {
-    op: Op,
-    major: u64,
-    minor: u64,
-    patch: u64,
-    pre: Vec<Identifier>,
+pub struct Predicate {
+    /// Comparison
+    pub op: Op,
+    /// major
+    pub major: u64,
+    /// minor
+    pub minor: u64,
+    /// patch
+    pub patch: u64,
+    /// pre-release identifiers
+    pub pre: Vec<Identifier>,
 }
 
 impl From<semver_parser::Comparator> for Predicate {
@@ -406,6 +418,14 @@ impl VersionReq {
         }
 
         false
+    }
+
+    /// Export a version requirement into union of intersections of predicates.
+    pub fn ranges_of_predicates(&self) -> Vec<&[Predicate]> {
+        self.ranges
+            .iter()
+            .map(|r| r.predicates.as_slice())
+            .collect()
     }
 }
 
